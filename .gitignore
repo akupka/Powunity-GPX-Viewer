@@ -1,0 +1,5 @@
+.env
+ai_task_template.md
+powunity_gpx_viewer.md
+./node_modules
+./__tests

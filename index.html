@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Powunity GPX Viewer</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Powunity GPX Viewer</h1>
+        <div class="input-group">
+            <label for="apiToken">API Token:</label>
+            <input type="text" id="apiToken" placeholder="Your API Token">
+        </div>
+        <div class="input-group">
+            <label for="deviceId">Device ID:</label>
+            <select id="deviceId" disabled>
+                <option value="">Gerät auswählen</option>
+            </select>
+        </div>
+        <div id="userInfo" style="margin-top: 20px; padding: 15px; border: 1px solid #e0e0e0; border-radius: 5px; background-color: #f9f9f9; display: none;">
+            <h3>Benutzerinformationen</h3>
+            <p><strong>Name:</strong> <span id="userName"></span></p>
+            <p><strong>E-Mail:</strong> <span id="userEmail"></span></p>
+            <p><strong>Akkuladestand:</strong> <span id="batteryLevel">N/A</span></p>
+        </div>
+        <button id="loginButton">Login</button>
+        <div class="input-group">
+            <label for="startDate">Start Datum:</label>
+            <input type="date" id="startDate">
+        </div>
+        <div class="input-group">
+            <label for="endDate">End Datum:</label>
+            <input type="date" id="endDate">
+        </div>
+        <div class="input-group">
+            <label for="routeSelect">Route auswählen:</label>
+            <select id="routeSelect" disabled>
+                <option value="">Bitte zuerst Gerät und Datum auswählen</option>
+            </select>
+        </div>
+        <div id="routeSummary" style="margin-top: 10px; padding: 10px; border: 1px solid #e0e0e0; border-radius: 5px; background-color: #f9f9f9; display: none;">
+            <h3>Routenübersicht</h3>
+            <p><strong>Gesamtstrecke:</strong> <span id="totalDistance">N/A</span> km</p>
+        </div>
+        <button id="showAllRoutesButton" disabled>Alle Routen anzeigen</button>
+        <button id="loadRoute" disabled>Route Laden</button>
+        <div id="map"></div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.5.1/gpx.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
