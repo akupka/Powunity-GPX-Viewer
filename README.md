@@ -77,6 +77,7 @@ To set up and run this application locally, follow these steps:
 
 6.  **View Route Summary:**
     *   The "Routenübersicht" (Route Summary) section will display the "Gesamtstrecke" (Total Distance) in kilometers for the selected device and date range.
+![image](https://github.com/user-attachments/assets/34886021-682f-43f2-b5e1-4695e39e7d0b)
 
 ## Important Notes
 
