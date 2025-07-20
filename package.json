@@ -1,0 +1,26 @@
+{
+  "name": "powunity-gpx-viewer",
+  "version": "1.0.0",
+  "description": "## Project Description",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/akupka/Powunity-GPX-Viewer.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/akupka/Powunity-GPX-Viewer/issues"
+  },
+  "homepage": "https://github.com/akupka/Powunity-GPX-Viewer#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "node-fetch": "^2.7.0",
+    "sqlite3": "^5.1.7"
+  }
+}

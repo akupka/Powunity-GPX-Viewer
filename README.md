@@ -2,85 +2,94 @@
 
 ## Project Description
 
-This project aims to create a web application that retrieves GPX tracking data from the Powunity API. The retrieved routes are then visualized on an interactive OpenStreetMap, allowing users to view their recorded bike tracks.
+This project is a web application for fetching, storing, and visualizing GPX tracking data from the Powunity API. It uses a Node.js backend to import all historical track data into a local SQLite database. The frontend then displays these tracks on an interactive OpenStreetMap, color-coding the route based on the recorded speed.
 
 ## Features
 
--   **Session Login:** Users authenticate with an API token to establish a session.
--   **User & Device Information:** Displays authenticated user's email and name, along with a list of available devices.
--   **Battery Level Display:** Shows the battery level of the selected device (if available in API data).
--   **Route Retrieval:** The application fetches available routes (trips) for a selected device and date range.
--   **Interactive Map:** Integrates Leaflet.js to display OpenStreetMap.
--   **Single Route Visualization:** Allows selecting and displaying a single GPX route on the map.
--   **Multiple Routes Visualization:** Allows displaying all available GPX routes for a selected period on the map.
--   **Total Distance Display:** Shows the aggregated distance for all routes within the selected date range.
--   **GPX Data Parsing:** Converts JSON position data from the API into GPX XML format for map display.
--   **Error Handling:** Basic error handling for API requests and data processing.
+-   **Local Data Persistence:** Imports all track data from the Powunity API into a local SQLite database, ensuring you have a permanent, local copy of your data.
+-   **Incremental Imports:** The import process checks for existing trips and only fetches new data, preventing duplicates.
+-   **Client-Server Architecture:** A Node.js and Express backend serves the data and the frontend application.
+-   **Date Range Selection:** Users can select a date range to view specific tracks from the local database.
+-   **Speed-Based Visualization:** Routes on the map are color-coded based on speed, with a legend indicating slow (blue) to fast (red) segments.
 
 ## Tech Stack
 
--   **Languages:** HTML, CSS, JavaScript
--   **Libraries:**
-    -   **Leaflet.js:** For interactive OpenStreetMap display.
-    -   **Leaflet-GPX:** A Leaflet plugin for parsing and displaying GPX data.
-    -   **Fetch API (Native Browser):** For communication with the Powunity API.
--   **Tools:** A simple local web server (e.g., `npx http-server` for development).
+-   **Backend:**
+    -   Node.js
+    -   Express.js
+    -   node-fetch
+    -   SQLite3 (for the database)
+-   **Frontend:**
+    -   HTML, CSS, JavaScript
+    -   Leaflet.js
+-   **Database:**
+    -   SQLite
 
-## Setup Instructions
+## How to Use This Application
 
-To set up and run this application locally, follow these steps:
+Follow these steps to get the application running and view your tracks.
+
+### Step 1: Initial Setup
+
+First, you need to get the application running on your local machine.
 
 1.  **Clone the Repository:**
     ```bash
     git clone <your-repository-url>
-    cd powunity-gpx-viewer # Or whatever your project directory is named
+    cd Powunity-GPX-Viewer
     ```
 
-2.  **Install a Local Web Server (if you don't have one):**
-    This application requires a web server to run due to browser security restrictions (e.g., fetching local files and making API requests). If you have Node.js installed, `http-server` is a simple option:
+2.  **Install Dependencies:**
+    This project uses Node.js for its backend. You must have Node.js and npm installed. Run the following command in the project root to install the necessary packages:
     ```bash
-    npm install -g http-server
-    # Or using npx without global installation:
-    # npx http-server
+    npm install
     ```
 
-3.  **Run the Application:**
-    Navigate to your project directory in the terminal and start the web server:
+3.  **Run the Backend Server:**
+    Start the local server from your terminal:
     ```bash
-    npx http-server
+    node server.js
     ```
-    The server will usually start on `http://localhost:8080`. Open this URL in your web browser.
 
-## Usage
+4.  **Open the Application:**
+    Navigate to `http://localhost:3000` in your web browser. The server will automatically serve the `index.html` page.
 
-1.  **Obtain API Token and Device ID:**
-    You will need an API token and your device ID from your Powunity account. This application uses the `/session?token={your_token}` endpoint for authentication and relies on session cookies for subsequent API calls.
-    You will find this in the Powunity App Settings->Advanced
+### Step 2: Import Your Tracking Data
 
-2.  **Login:**
-    *   Enter your **API Token** into the "API Token" input field.
-    *   Click the **"Login"** button.
-    *   Upon successful login, your user information (Name, Email) and the battery level of your device (if available) will be displayed. The "Device ID" dropdown will be populated with your available devices, and the "Route Laden" and "Alle Routen anzeigen" buttons will become active.
+Before you can see any tracks, you must import them from the Powunity API into your local database.
 
-3.  **Select Device and Date Range:**
-    *   Choose your **Device ID** from the dropdown menu.
-    *   Select a **Start Datum** (Start Date) and **End Datum** (End Date) for the period you want to view routes.
+1.  **Get Your Credentials:**
+    You will need your **API Token** and **Device ID** from your Powunity account. You can find these in the Powunity App under `Settings -> Advanced`.
 
-4.  **Load Single Route:**
-    *   After selecting a device and date range, the "Route auswählen" (Select Route) dropdown will be populated with individual trips found for that period.
-    *   Select a specific **Route** from the dropdown.
-    *   Click the **"Route Laden"** (Load Route) button to display that single route on the map.
+2.  **Start the Import:**
+    *   On the webpage, enter your token and ID into the corresponding input fields.
+    *   Click the **"Daten importieren / aktualisieren"** (Import/Update Data) button.
 
-5.  **Load All Routes:**
-    *   After selecting a device and date range, click the **"Alle Routen anzeigen"** (Show All Routes) button.
-    *   This will fetch and display all available routes for the selected period on the map as multiple tracks.
+3.  **Wait for the Import to Finish:**
+    *   The import process will begin in the background. You can monitor the progress in the terminal where the server is running.
+    *   **Note:** The very first import may take a long time, as it fetches all your data since 2015. Subsequent imports will be much faster because the application will only fetch new, previously un-imported tracks.
 
-6.  **View Route Summary:**
-    *   The "Routenübersicht" (Route Summary) section will display the "Gesamtstrecke" (Total Distance) in kilometers for the selected device and date range.
-![image](https://github.com/user-attachments/assets/34886021-682f-43f2-b5e1-4695e39e7d0b)
+### Step 3: View Your Tracks
 
-## Important Notes
+Once the import is complete, you can view your tracks on the map.
 
-*   **API Authentication:** The application uses a session token for authentication. Ensure your token has the necessary permissions to access device and position data.
-*   **Browser Cache:** If you make changes to the code and they don't appear in your browser, perform a hard refresh (`Ctrl + F5` or `Cmd + Shift + R`) or clear your browser's cache.
-*   **Placeholder Images:** The map markers use simple SVG placeholder images (`images/pin-icon-start.png`, `images/pin-icon-end.png`, `images/pin-shadow.png`). You can replace these with custom images if desired.
+1.  **Select a Date Range:**
+    *   Choose a **Start Datum** (Start Date) and **End Datum** (End Date) for the period you want to view.
+
+2.  **Display Routes:**
+    *   Click the **"Routen anzeigen"** (Show Routes) button.
+    *   The tracks for the selected period will be fetched from your local database and displayed on the map, with the path colored according to speed.
+
+---
+
+## How Speed is Calculated
+
+The speed for each track segment is not provided by the Powunity API. It is calculated by the application during the import process. Here’s how it works:
+
+For any two consecutive points in a track:
+
+1.  **Calculate Distance:** The script uses the **Haversine formula** to calculate the great-circle distance (the shortest distance over the earth’s surface) between the two points' latitude and longitude coordinates.
+2.  **Calculate Time:** It finds the time difference in seconds between the timestamps of the two points.
+3.  **Calculate Speed:** Speed is calculated by dividing the distance (in meters) by the time difference (in seconds). The result is then converted from meters per second to kilometers per hour (km/h) and stored in the database alongside the position data.
+
+This speed value is then used to color the track on the map, providing a visual representation of your speed at different points along the route.
