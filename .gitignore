@@ -5,6 +5,6 @@ powunity_gpx_viewer.md
 node_modules
 ./__tests
 __tests__
-*.json
+data.json
 *.db
 task.md
