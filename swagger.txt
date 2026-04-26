@@ -10,7 +10,7 @@ info:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
 servers:
-  - url: https://traccar.powunity.com/api
+  - url: https://iot.powunity.com/api
     description: BikeTrax API Server
 security:
   - basicAuth: []

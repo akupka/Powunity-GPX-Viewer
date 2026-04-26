@@ -67,11 +67,17 @@ async function importData(apiToken, deviceId) {
     console.log('Starting data import...');
     const sessionCookie = await getSessionCookie(apiToken);
     if (!sessionCookie) {
-        console.error('Failed to get session cookie for import.');
+        console.error('Failed to get session cookie for import. Check your API token.');
         return;
     }
 
-    let startDate = new Date('2015-01-01T00:00:00Z');
+    const apiDeviceId = await resolveDeviceId(sessionCookie, deviceId);
+
+    const lastTrip = await dbGet("SELECT MAX(endTime) as lastEnd FROM trips");
+    let startDate = lastTrip?.lastEnd
+        ? new Date(lastTrip.lastEnd)
+        : new Date('2015-01-01T00:00:00Z');
+    console.log(`Importing from ${startDate.toISOString()} (${lastTrip?.lastEnd ? 'incremental' : 'full import'})`);
     const endDate = new Date();
 
     while (startDate < endDate) {
@@ -82,7 +88,7 @@ async function importData(apiToken, deviceId) {
         }
 
         console.log(`Fetching trips from ${startDate.toISOString()} to ${nextDate.toISOString()}`);
-        const trips = await getTripsFromApi(sessionCookie, deviceId, startDate, nextDate);
+        const trips = await getTripsFromApi(sessionCookie, apiDeviceId, startDate, nextDate);
 
         for (const trip of trips) {
             const existingTrip = await dbGet("SELECT id FROM trips WHERE startTime = ? AND endTime = ?", [trip.startTime, trip.endTime]);
@@ -94,7 +100,7 @@ async function importData(apiToken, deviceId) {
             const result = await dbRun("INSERT INTO trips (deviceId, startTime, endTime, distance) VALUES (?, ?, ?, ?)", [trip.deviceId, trip.startTime, trip.endTime, trip.distance]);
             const tripId = result.lastID;
 
-            const positions = await getPositionsFromApi(sessionCookie, deviceId, new Date(trip.startTime), new Date(trip.endTime));
+            const positions = await getPositionsFromApi(sessionCookie, apiDeviceId, new Date(trip.startTime), new Date(trip.endTime));
             let previousPosition = null;
             for (const position of positions) {
                 const speed = calculateSpeed(previousPosition, position);
@@ -110,20 +116,46 @@ async function importData(apiToken, deviceId) {
 // --- Helper & Utility Functions ---
 
 async function getSessionCookie(token) {
-    const response = await fetch(`https://traccar.powunity.com/api/session?token=${token}`);
+    const response = await fetch(`https://iot.powunity.com/api/session?token=${token}`);
     return response.ok ? response.headers.get('set-cookie') : null;
 }
 
+async function resolveDeviceId(cookie, deviceIdOrUniqueId) {
+    const response = await fetch('https://iot.powunity.com/api/devices', {
+        headers: { 'Cookie': cookie, 'Accept': 'application/json' }
+    });
+    if (!response.ok) {
+        console.warn(`Could not fetch devices list (${response.status}), using deviceId as-is: ${deviceIdOrUniqueId}`);
+        return deviceIdOrUniqueId;
+    }
+    const devices = await response.json();
+    const match = devices.find(d => String(d.uniqueId) === String(deviceIdOrUniqueId))
+                || devices.find(d => String(d.id) === String(deviceIdOrUniqueId));
+    if (match && String(match.id) !== String(deviceIdOrUniqueId)) {
+        console.log(`Resolved uniqueId ${deviceIdOrUniqueId} → internal API id ${match.id} (${match.name})`);
+        return match.id;
+    }
+    return deviceIdOrUniqueId;
+}
+
 async function getTripsFromApi(cookie, deviceId, from, to) {
-    const url = `https://traccar.powunity.com/api/reports/trips?deviceId=${deviceId}&from=${from.toISOString()}&to=${to.toISOString()}`;
+    const url = `https://iot.powunity.com/api/reports/trips?deviceId=${deviceId}&from=${from.toISOString()}&to=${to.toISOString()}`;
     const response = await fetch(url, { headers: { 'Cookie': cookie, 'Accept': 'application/json' } });
-    return response.ok ? response.json() : [];
+    if (!response.ok) {
+        console.error(`API error fetching trips [${from.toISOString()} - ${to.toISOString()}]: ${response.status} ${response.statusText}`);
+        return [];
+    }
+    return response.json();
 }
 
 async function getPositionsFromApi(cookie, deviceId, from, to) {
-    const url = `https://traccar.powunity.com/api/positions?deviceId=${deviceId}&from=${from.toISOString()}&to=${to.toISOString()}`;
+    const url = `https://iot.powunity.com/api/positions?deviceId=${deviceId}&from=${from.toISOString()}&to=${to.toISOString()}`;
     const response = await fetch(url, { headers: { 'Cookie': cookie, 'Accept': 'application/json' } });
-    return response.ok ? response.json() : [];
+    if (!response.ok) {
+        console.error(`API error fetching positions [${from.toISOString()} - ${to.toISOString()}]: ${response.status} ${response.statusText}`);
+        return [];
+    }
+    return response.json();
 }
 
 function haversineDistance(lat1, lon1, lat2, lon2) {

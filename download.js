@@ -86,7 +86,7 @@ async function main() {
 }
 
 async function getSessionCookie(token) {
-    const response = await fetch(`https://traccar.powunity.com/api/session?token=${token}`);
+    const response = await fetch(`https://iot.powunity.com/api/session?token=${token}`);
     if (!response.ok) {
         return null;
     }
@@ -94,7 +94,7 @@ async function getSessionCookie(token) {
 }
 
 async function getTrips(sessionCookie, deviceId, from, to) {
-    const url = `https://traccar.powunity.com/api/reports/trips?deviceId=${deviceId}&from=${from.toISOString()}&to=${to.toISOString()}`;
+    const url = `https://iot.powunity.com/api/reports/trips?deviceId=${deviceId}&from=${from.toISOString()}&to=${to.toISOString()}`;
     const response = await fetch(url, {
         headers: {
             'Cookie': sessionCookie,
@@ -115,7 +115,7 @@ async function getTrips(sessionCookie, deviceId, from, to) {
 }
 
 async function getPositions(sessionCookie, deviceId, from, to) {
-    const url = `https://traccar.powunity.com/api/positions?deviceId=${deviceId}&from=${from.toISOString()}&to=${to.toISOString()}`;
+    const url = `https://iot.powunity.com/api/positions?deviceId=${deviceId}&from=${from.toISOString()}&to=${to.toISOString()}`;
     const response = await fetch(url, {
         headers: {
             'Cookie': sessionCookie,
